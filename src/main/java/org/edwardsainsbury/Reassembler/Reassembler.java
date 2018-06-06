@@ -19,16 +19,12 @@ public class Reassembler {
     }
 
     private int getOverlap(char left[], char right[] ) {
-        System.out.println(Arrays.toString(left));
-        System.out.println(Arrays.toString(right));
         for (int i = 0; i < left.length; i++) {
             System.out.println(Arrays.copyOfRange(left, left.length - 1 - i, left.length));
             System.out.println(Arrays.copyOfRange(right, 0, i + 1));
-            System.out.println(Arrays.copyOfRange(left, left.length - 1 - i, left.length) !=
-                    Arrays.copyOfRange(right, 0, i + 1));
             char[] arr1 = Arrays.copyOfRange(left, left.length - 1 - i, left.length);
             char[] arr2 = Arrays.copyOfRange(right, 0, i + 1);
-            if (Arrays.equals(arr1, arr2)) {
+            if (!Arrays.equals(arr1, arr2)) {
                 return i;
             }
         }
@@ -37,9 +33,7 @@ public class Reassembler {
 
 
     private String reassemble(){
-
         Arrays.sort(fragments, Comparator.comparingInt(a->a.length));
-
         for (int i = 0; i < fragments.length; i++) {
             for (int j = i + 1; j < fragments.length; j++) {
                 int overlap = getOverlap(fragments[i], fragments[j]);
