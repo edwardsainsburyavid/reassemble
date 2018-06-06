@@ -1,6 +1,5 @@
 package org.edwardsainsbury.Reassembler;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -20,8 +19,6 @@ public class Reassembler {
 
     private int getOverlap(char left[], char right[] ) {
         for (int i = 0; i < left.length; i++) {
-            System.out.println(Arrays.copyOfRange(left, left.length - 1 - i, left.length));
-            System.out.println(Arrays.copyOfRange(right, 0, i + 1));
             char[] arr1 = Arrays.copyOfRange(left, left.length - 1 - i, left.length);
             char[] arr2 = Arrays.copyOfRange(right, 0, i + 1);
             if (!Arrays.equals(arr1, arr2)) {
