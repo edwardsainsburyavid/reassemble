@@ -26,12 +26,13 @@ public class ReassemblerTest {
         expectedResult = "O draconian devil! Oh lame saint! ";
         assertEquals(result, expectedResult);
         */
+        /*
+        String result = new Reassembler("Hellow w;world.").getReassembled();
+        String expectedResult = "Hello world.";
+        assertEquals(result, expectedResult);
+        */
         String result = new Reassembler("").getReassembled();
         String expectedResult = "";
-        assertEquals(result, expectedResult);
-
-        result = new Reassembler("").getReassembled();
-        expectedResult = "";
         assertEquals(result, expectedResult);
 
         result = new Reassembler("").getReassembled();
