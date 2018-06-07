@@ -1,17 +1,17 @@
 package org.edwardsainsbury.Reassembler;
 
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 
 public class Reassembler {
-    private char[][] fragments;
+    private ArrayList<char[]> fragments;
     private String reassembled;
 
     public Reassembler(String inputString){
         String[] fragmentArray = inputString.split(";");
-        char[][] fragments = new char[fragmentArray.length][];
-        for (int x = 0; x < fragmentArray.length; x++){
-            fragments[x] = fragmentArray[x].toCharArray();
+        ArrayList<char[]> fragments = new ArrayList<>();
+
+        for (String fragment : fragmentArray){
+            fragments.add(fragment.toCharArray());
         }
         this.fragments = fragments;
         this.reassembled = reassemble();
@@ -22,6 +22,7 @@ public class Reassembler {
             char[] arr1 = Arrays.copyOfRange(left, left.length - 1 - i, left.length);
             char[] arr2 = Arrays.copyOfRange(right, 0, i + 1);
             if (Arrays.equals(arr1, arr2)) {
+                System.out.println("Overlap");
                 return i+1;
             }
         }
@@ -29,20 +30,43 @@ public class Reassembler {
     }
 
 
-    private String reassemble(){
-        Arrays.sort(fragments, Comparator.comparingInt(a->a.length));
-        for (int i = 0; i < fragments.length; i++) {
-            for (int j = i + 1; j < fragments.length; j++) {
-                System.out.println(Arrays.toString(fragments[i]));
-                System.out.println(Arrays.toString(fragments[j]));
-                int overlap = getOverlap(fragments[i], fragments[j]);
-                System.out.println(overlap);
-                overlap = getOverlap(fragments[j], fragments[i]);
-                System.out.println(overlap);
-            }
-        }
-        return ""; //String.join("", fragments);
+    private static char[] concat(char[] first, char[] second) {
+        char[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
     }
+
+    private String reassemble(){
+        fragments.sort(Comparator.comparingInt(a->a.length));
+        char[] base = fragments.get(0);
+        fragments.remove(0);
+        int i = 0;
+        while (fragments.size() > 0) {
+            char[] toAdd = fragments.get(i);
+            int leftOverlap = getOverlap(toAdd, base);
+            int rightOverlap = getOverlap(base, toAdd);
+            if (leftOverlap > rightOverlap){
+                base = concat(Arrays.copyOfRange(toAdd, 0,toAdd.length - leftOverlap), base);
+                fragments.remove(i);
+            } else if (leftOverlap > 0 || rightOverlap > 0) {
+                base = concat(Arrays.copyOfRange(base, 0,base.length - rightOverlap), toAdd);
+                fragments.remove(i);
+            } else {
+                // Cant find an overlap so skip to next item
+                i++;
+            }
+
+            if (i == fragments.size()){
+                i = 0;
+            }
+            System.out.println(toAdd);
+            System.out.println(base);
+
+        }
+
+        return new String(base);
+    }
+
 
     public String getReassembled(){
         return reassembled;

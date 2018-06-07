@@ -9,7 +9,7 @@ public class ReassemblerTest {
 
     @Test
     public void getReassembled() {
-        /*
+
         String result = new Reassembler("m quaerat voluptatem.;pora incidunt ut labore et d;, consectetur, " +
                 "adipisci velit;olore magnam aliqua;idunt ut labore et dolore magn;uptatem.;i dolorem ipsum qu;iquam" +
                 " quaerat vol;psum quia dolor sit amet, consectetur, a;ia dolor sit amet, conse;squam est, qui " +
@@ -25,12 +25,12 @@ public class ReassemblerTest {
         result = new Reassembler("O draconia;conian devil! Oh la;h lame sa;saint! ").getReassembled();
         expectedResult = "O draconian devil! Oh lame saint! ";
         assertEquals(result, expectedResult);
-        */
+
+
+        result = new Reassembler("Hello w;world.").getReassembled();
+        expectedResult = "Hello world.";
+        assertEquals(expectedResult, result);
         /*
-        String result = new Reassembler("Hellow w;world.").getReassembled();
-        String expectedResult = "Hello world.";
-        assertEquals(result, expectedResult);
-        */
         String result = new Reassembler("").getReassembled();
         String expectedResult = "";
         assertEquals(result, expectedResult);
@@ -38,5 +38,6 @@ public class ReassemblerTest {
         result = new Reassembler("").getReassembled();
         expectedResult = "";
         assertEquals(result, expectedResult);
+        */
     }
 }
