@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class Reassembler {
-    public char[][] fragments;
+    private char[][] fragments;
     private String reassembled;
 
     public Reassembler(String inputString){
@@ -21,8 +21,8 @@ public class Reassembler {
         for (int i = 0; i < left.length; i++) {
             char[] arr1 = Arrays.copyOfRange(left, left.length - 1 - i, left.length);
             char[] arr2 = Arrays.copyOfRange(right, 0, i + 1);
-            if (!Arrays.equals(arr1, arr2)) {
-                return i;
+            if (Arrays.equals(arr1, arr2)) {
+                return i+1;
             }
         }
         return 0;
@@ -33,6 +33,8 @@ public class Reassembler {
         Arrays.sort(fragments, Comparator.comparingInt(a->a.length));
         for (int i = 0; i < fragments.length; i++) {
             for (int j = i + 1; j < fragments.length; j++) {
+                System.out.println(Arrays.toString(fragments[i]));
+                System.out.println(Arrays.toString(fragments[j]));
                 int overlap = getOverlap(fragments[i], fragments[j]);
                 System.out.println(overlap);
                 overlap = getOverlap(fragments[j], fragments[i]);
