@@ -3,13 +3,13 @@ package org.edwardsainsbury.reassembler;
 import org.edwardsainsbury.Reassembler.Reassembler;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ReassemblerTest {
 
     @Test
     public void getReassembled() {
-        /*
+
         String result = new Reassembler("m quaerat voluptatem.;pora incidunt ut labore et d;, consectetur, " +
                 "adipisci velit;olore magnam aliqua;idunt ut labore et dolore magn;uptatem.;i dolorem ipsum qu;iquam" +
                 " quaerat vol;psum quia dolor sit amet, consectetur, a;ia dolor sit amet, conse;squam est, qui " +
@@ -20,11 +20,11 @@ public class ReassemblerTest {
         String expectedResult = "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, " +
                 "adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam " +
                 "quaerat voluptatem.";
-        assertEquals(result, expectedResult);
-        */
-        String result = new Reassembler("O draconia;conian devil! Oh la;h lame sa;saint! ").getReassembled();
-        String expectedResult = "O draconian devil! Oh lame saint! ";
-        assertEquals(result, expectedResult);
+        assertEquals(expectedResult, result);
+
+        result = new Reassembler("O draconia;conian devil! Oh la;h lame sa;saint! ").getReassembled();
+        expectedResult = "O draconian devil! Oh lame saint! ";
+        assertEquals(expectedResult, result);
 
 
         result = new Reassembler("Hello w;world.").getReassembled();
@@ -32,8 +32,7 @@ public class ReassemblerTest {
         assertEquals(expectedResult, result);
 
         result = new Reassembler(" world.;Hello ").getReassembled();
-        expectedResult = "Hello world.";
-        assertEquals(result, expectedResult);
+        assertEquals(expectedResult, result);
         /*
         result = new Reassembler("").getReassembled();
         expectedResult = "";

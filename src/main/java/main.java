@@ -3,7 +3,7 @@ import org.edwardsainsbury.Reassembler.Reassembler;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class main{
+public class Main {
 
     public static void main(String[] args) {
 
@@ -12,6 +12,7 @@ public class main{
             while ((fragmentProblem = in.readLine()) != null) {
                 System.out.println(fragmentProblem);
                 Reassembler reassembler = new Reassembler(fragmentProblem);
+                System.out.println(reassembler.getReassembled());
             }
         } catch (Exception e) {
             e.printStackTrace();

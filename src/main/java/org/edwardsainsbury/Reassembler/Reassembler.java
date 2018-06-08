@@ -1,8 +1,8 @@
 package org.edwardsainsbury.Reassembler;
 
-import com.sun.tools.javac.util.ArrayUtils;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class Reassembler {
     private ArrayList<char[]> fragments;
@@ -22,13 +22,10 @@ public class Reassembler {
     private int getOverlap(char left[], char right[] ) {
         for (int i = 0; i < left.length; i++) {
             char[] arr1 = Arrays.copyOfRange(left, left.length - i - 1, left.length);
-
             char[] arr2 = Arrays.copyOfRange(right, 0, i + 1);
 
             if (Arrays.equals(arr1, arr2) && arr1.length != left.length) {
                 return i+1;
-            } else if (Arrays.equals(arr1, arr2)){
-                return -1;
             }
         }
         return 0;
@@ -42,107 +39,50 @@ public class Reassembler {
     }
 
     private String reassemble(){
+        // Sort fragments to add larger first
+        fragments.sort(Comparator.comparingInt(a -> -a.length));
 
-        fragments.sort(Comparator.comparingInt(a->a.length));
-        Collections.reverse(fragments);
-        ArrayList<Node> stringNodes = new ArrayList<>();
-
-        stringNodes.add(new Node(fragments.get(0), 0 , 0));
+        char[] base = fragments.get(0);
         fragments.remove(0);
+        int noAdd = 0;
 
-        int i = 0;
-        while (fragments.size() > 0) {
-            int bestNodePostion = 0;
-            int oldPosition = 0;
-            int bestLeftOverlap = 0;
-            int bestRightOverlap = 0;
-            char[] toAdd = new char[0];
-            int[] leftOverlaps = new int[stringNodes.size() + 1];
-            int[] rightOverlaps = new int[stringNodes.size() + 1];
+        // Loop while there are remaining fragemnts
+        while (noAdd != fragments.size()) {
+            int bestOverlap = 0;
+            int bestOverlapFragmentIndex = 0;
+            String bestOverlapDirection = "false";
 
-            String add = "false";
-            for (int j = 0; j < stringNodes.size(); j++){
-                toAdd = fragments.get(i);
-
-                Node baseNode = stringNodes.get(j);
-                int leftOverlap = getOverlap(toAdd, baseNode.value);
-                int rightOverlap = getOverlap(baseNode.value, toAdd);
-                if (leftOverlap == -1 || rightOverlap == -1) {
-                    fragments.remove(i);
-                    add = "remove";
-                    break;
-                }
-                leftOverlaps[j] = leftOverlap;
-
-                rightOverlaps[j] = rightOverlap;
-
-                if (leftOverlaps[j] > baseNode.leftOverlap && leftOverlaps[j] > bestLeftOverlap){
-                    bestNodePostion = j;
-                    bestLeftOverlap = leftOverlaps[bestNodePostion];
-                    add = "left";
-                    oldPosition = j;
-                } else if (rightOverlaps[j]  > baseNode.rightOverlap && rightOverlaps[j]  >
-                        bestRightOverlap) {
-                    bestNodePostion = j+1;
-                    oldPosition = j;
-                    bestRightOverlap = rightOverlaps[oldPosition] ;
-                    add = "right";
-
+            for (int i = 0; i < fragments.size(); i++) {
+                char[] test = fragments.get(i);
+                int leftOverlap = getOverlap(test, base);
+                int rightOverlap = getOverlap(base, test);
+                if (leftOverlap > bestOverlap && leftOverlap > rightOverlap) {
+                    bestOverlap = leftOverlap;
+                    bestOverlapFragmentIndex = i;
+                    bestOverlapDirection = "left";
+                } else if (rightOverlap > bestOverlap) {
+                    bestOverlap = rightOverlap;
+                    bestOverlapFragmentIndex = i;
+                    bestOverlapDirection = "right";
                 }
             }
 
-            switch (add) {
-                case "left":
-                    stringNodes.get(bestNodePostion).leftOverlap = leftOverlaps[oldPosition];
-                    stringNodes.add(bestNodePostion, new Node(Arrays.copyOfRange(toAdd, 0
-                            , toAdd.length),
-                            rightOverlaps[oldPosition], leftOverlaps[oldPosition]));
-                    fragments.remove(i);
-                    break;
-
-                case "right":
-
-                    stringNodes.get(bestNodePostion- 1).rightOverlap = rightOverlaps[oldPosition];
-                    stringNodes.add(bestNodePostion, new Node(Arrays.copyOfRange(toAdd, 0
-                            , toAdd.length), rightOverlaps[oldPosition], leftOverlaps[oldPosition]));
-                    fragments.remove(i);
-                    break;
-
-                case "remove":
-                    break;
-
-                default:
-                    i++;
+            if (bestOverlap > 0) {
+                char[] toAdd = fragments.get(bestOverlapFragmentIndex);
+                if (bestOverlapDirection.equals("right")) {
+                    base = concat(base, Arrays.copyOfRange(toAdd, bestOverlap, toAdd.length));
+                } else {
+                    base = concat(toAdd, Arrays.copyOfRange(base, bestOverlap, base.length));
+                }
+                fragments.remove(bestOverlapFragmentIndex);
+            } else {
+                noAdd++;
             }
-
-            if (i == fragments.size()){
-                i = 0;
-            }
-
         }
-        char[] base = stringNodes.get(0).value;
-        for (int y = 1; y < stringNodes.size(); y++){
-            Node node = stringNodes.get(y);
-            base = concat(base, Arrays.copyOfRange(node.value, node.leftOverlap, node.value.length));
-        }
-        System.out.println(base);
 
         return new String(base);
+
     }
-
-
-    class Node{
-        int leftOverlap;
-        int rightOverlap;
-        char[] value;
-
-        Node(char[] value, int leftOverlap, int rightOverlap){
-            this.value = value;
-            this.leftOverlap = leftOverlap;
-            this.rightOverlap = rightOverlap;
-        }
-    }
-
 
     public String getReassembled(){
         return reassembled;
