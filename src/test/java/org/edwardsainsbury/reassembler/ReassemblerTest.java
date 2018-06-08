@@ -21,20 +21,20 @@ public class ReassemblerTest {
                 "adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam " +
                 "quaerat voluptatem.";
         assertEquals(result, expectedResult);
-
-        result = new Reassembler("O draconia;conian devil! Oh la;h lame sa;saint! ").getReassembled();
-        expectedResult = "O draconian devil! Oh lame saint! ";
-        assertEquals(result, expectedResult);
         */
-
-        String result = new Reassembler("Hello w;world.").getReassembled();
-        String expectedResult = "Hello world.";
-        assertEquals(expectedResult, result);
-        /*
-        String result = new Reassembler("").getReassembled();
-        String expectedResult = "";
+        String result = new Reassembler("O draconia;conian devil! Oh la;h lame sa;saint! ").getReassembled();
+        String expectedResult = "O draconian devil! Oh lame saint! ";
         assertEquals(result, expectedResult);
 
+
+        result = new Reassembler("Hello w;world.").getReassembled();
+        expectedResult = "Hello world.";
+        assertEquals(expectedResult, result);
+
+        result = new Reassembler(" world.;Hello ").getReassembled();
+        expectedResult = "Hello world.";
+        assertEquals(result, expectedResult);
+        /*
         result = new Reassembler("").getReassembled();
         expectedResult = "";
         assertEquals(result, expectedResult);

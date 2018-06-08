@@ -1,5 +1,7 @@
 package org.edwardsainsbury.Reassembler;
 
+import com.sun.tools.javac.util.ArrayUtils;
+
 import java.util.*;
 
 public class Reassembler {
@@ -18,22 +20,17 @@ public class Reassembler {
     }
 
     private int getOverlap(char left[], char right[] ) {
-        System.out.println(left);
-        System.out.println(right);
         for (int i = 0; i < left.length; i++) {
-            System.out.println("arr1");
             char[] arr1 = Arrays.copyOfRange(left, left.length - i - 1, left.length);
-            System.out.println(arr1);
-            System.out.println("arr2");
+
             char[] arr2 = Arrays.copyOfRange(right, 0, i + 1);
 
-            System.out.println(arr2);
-            if (Arrays.equals(arr1, arr2)) {
-                System.out.println("Overlap");
+            if (Arrays.equals(arr1, arr2) && arr1.length != left.length) {
                 return i+1;
+            } else if (Arrays.equals(arr1, arr2)){
+                return -1;
             }
         }
-        System.out.println("Returns 0");
         return 0;
     }
 
@@ -47,6 +44,7 @@ public class Reassembler {
     private String reassemble(){
 
         fragments.sort(Comparator.comparingInt(a->a.length));
+        Collections.reverse(fragments);
         ArrayList<Node> stringNodes = new ArrayList<>();
 
         stringNodes.add(new Node(fragments.get(0), 0 , 0));
@@ -55,74 +53,81 @@ public class Reassembler {
         int i = 0;
         while (fragments.size() > 0) {
             int bestNodePostion = 0;
+            int oldPosition = 0;
             int bestLeftOverlap = 0;
             int bestRightOverlap = 0;
             char[] toAdd = new char[0];
-            int[] leftOverlaps = new int[0];
-            int[] rightOverlaps = new int[0];
-            int startPosition = 0;
+            int[] leftOverlaps = new int[stringNodes.size() + 1];
+            int[] rightOverlaps = new int[stringNodes.size() + 1];
+
             String add = "false";
             for (int j = 0; j < stringNodes.size(); j++){
                 toAdd = fragments.get(i);
+
                 Node baseNode = stringNodes.get(j);
-                leftOverlaps = new int[stringNodes.size() + 1];
-                rightOverlaps = new int[stringNodes.size() + 1];
-                leftOverlaps[j] = getOverlap(toAdd, baseNode.value);
-                rightOverlaps[j] = getOverlap(baseNode.value, toAdd);
+                int leftOverlap = getOverlap(toAdd, baseNode.value);
+                int rightOverlap = getOverlap(baseNode.value, toAdd);
+                if (leftOverlap == -1 || rightOverlap == -1) {
+                    fragments.remove(i);
+                    add = "remove";
+                    break;
+                }
+                leftOverlaps[j] = leftOverlap;
+
+                rightOverlaps[j] = rightOverlap;
 
                 if (leftOverlaps[j] > baseNode.leftOverlap && leftOverlaps[j] > bestLeftOverlap){
                     bestNodePostion = j;
                     bestLeftOverlap = leftOverlaps[bestNodePostion];
                     add = "left";
+                    oldPosition = j;
                 } else if (rightOverlaps[j]  > baseNode.rightOverlap && rightOverlaps[j]  >
                         bestRightOverlap) {
                     bestNodePostion = j+1;
-                    bestRightOverlap = rightOverlaps[bestNodePostion] ;
+                    oldPosition = j;
+                    bestRightOverlap = rightOverlaps[oldPosition] ;
                     add = "right";
-                } else {
-                    add = "false";
+
                 }
             }
 
             switch (add) {
                 case "left":
-                    startPosition = leftOverlaps[bestNodePostion];
+                    stringNodes.get(bestNodePostion).leftOverlap = leftOverlaps[oldPosition];
+                    stringNodes.add(bestNodePostion, new Node(Arrays.copyOfRange(toAdd, 0
+                            , toAdd.length),
+                            rightOverlaps[oldPosition], leftOverlaps[oldPosition]));
+                    fragments.remove(i);
+                    break;
+
                 case "right":
-                    startPosition = rightOverlaps[bestNodePostion];
-            }
 
+                    stringNodes.get(bestNodePostion- 1).rightOverlap = rightOverlaps[oldPosition];
+                    stringNodes.add(bestNodePostion, new Node(Arrays.copyOfRange(toAdd, 0
+                            , toAdd.length), rightOverlaps[oldPosition], leftOverlaps[oldPosition]));
+                    fragments.remove(i);
+                    break;
 
-            if (add != "false"){
-                //System.out.println(Arrays.copyOfRange(toAdd, 0,toAdd
-                        //.length - bestLeftOverlap));
-                //System.out.println(bestNodePostion);
-                //System.out.println(Arrays.toString(rightOverlaps));
-                //System.out.println(Arrays.toString(leftOverlaps));
-                stringNodes.add(bestNodePostion, new Node(Arrays.copyOfRange(toAdd,startPosition
-                        ,toAdd.length),
-                        leftOverlaps[bestNodePostion], rightOverlaps[bestNodePostion-1]));
-                fragments.remove(i);
-            } else {
-                // Cant find an overlap so skip to next item
-                i++;
+                case "remove":
+                    break;
+
+                default:
+                    i++;
             }
 
             if (i == fragments.size()){
                 i = 0;
             }
 
-
-            char[] base = new char[0];
-            for (Node node : stringNodes){
-                //System.out.println(node.value);
-                base = concat(base, node.value);
-            }
-            System.out.println(base);
-            System.out.println(toAdd);
-
         }
+        char[] base = stringNodes.get(0).value;
+        for (int y = 1; y < stringNodes.size(); y++){
+            Node node = stringNodes.get(y);
+            base = concat(base, Arrays.copyOfRange(node.value, node.leftOverlap, node.value.length));
+        }
+        System.out.println(base);
 
-        return "";//new String(base);
+        return new String(base);
     }
 
 
