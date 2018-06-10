@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class Reassembler {
-
+public class Reassembler extends AbstractReassembler {
     private String reassembled;
+    private ArrayList<char[]> fragments;
 
     public Reassembler(String inputString){
         String[] fragmentArray = inputString.split(";");
@@ -18,8 +18,8 @@ public class Reassembler {
         for (String fragment : fragmentArray){
             fragments.add(fragment.toCharArray());
         }
-
-        this.reassembled = reassemble(fragments);
+        this.fragments = fragments;
+        this.reassembled = setReassembled();
     }
 
     public static void main(String[] args) {
@@ -54,9 +54,21 @@ public class Reassembler {
         return result;
     }
 
+    @Override
     public String getReassembled() {
         return reassembled;
     }
+
+    @Override
+    public void addFragment() {
+
+    }
+
+    @Override
+    public void removeFragment() {
+
+    }
+
 
     /**
      * getOverlaps:
@@ -94,7 +106,7 @@ public class Reassembler {
     /**
      * @return
      */
-    private String reassemble(ArrayList<char[]> fragments) {
+    private String setReassembled() {
         /* Sort fragments to add largest first */
         fragments.sort(Comparator.comparingInt(a -> -a.length));
 
