@@ -122,6 +122,11 @@ public class Reassembler extends AbstractReassembler {
 
             for (int i = 0; i < fragments.size(); i++) {
                 char[] test = fragments.get(i);
+
+                if (bestOverlap > test.length) {
+                    break;
+                }
+
                 int overlap = getOverlaps(test, base);
                 int newBestOverlap = Math.abs(overlap);
 
@@ -133,6 +138,7 @@ public class Reassembler extends AbstractReassembler {
                     bestOverlapFragmentIndex = i;
                     bestOverlap = newBestOverlap;
                 }
+
 
             }
 
