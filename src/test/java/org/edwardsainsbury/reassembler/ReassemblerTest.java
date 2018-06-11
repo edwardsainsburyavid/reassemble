@@ -80,7 +80,7 @@ public class ReassemblerTest {
         String[] notTestsArgs = {"nottests.txt"};
         Reassembler.main(notTestsArgs);
 
-        String[] testsArgs = {"tests.txt"};
+        String[] testsArgs = {"mainUnitTests.txt"};
         Reassembler.main(testsArgs);
     }
 

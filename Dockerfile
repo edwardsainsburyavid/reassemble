@@ -5,7 +5,7 @@ RUN apt-get install -y maven
 
 COPY pom.xml /usr/local/test/pom.xml
 COPY src /usr/local/test/src
-COPY tests.txt /usr/local/test/
+COPY mainUnitTests.txt /usr/local/test/
 
 WORKDIR /usr/local/test/
 
