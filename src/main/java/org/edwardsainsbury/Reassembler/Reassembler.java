@@ -60,13 +60,19 @@ public class Reassembler extends AbstractReassembler {
     }
 
     @Override
-    public void addFragment() {
-
+    public void addFragment(String fragment) {
+        fragments.add(fragment.toCharArray());
+        reassembled = setReassembled();
+        System.out.println(reassembled);
     }
 
     @Override
-    public void removeFragment() {
-
+    public void removeFragment(String fragment) {
+        if (fragments.contains(fragment.toCharArray())){
+            fragments.remove(fragments.indexOf(fragment.toCharArray()));
+        }
+        reassembled = setReassembled();
+        System.out.println(reassembled);
     }
 
 
@@ -86,9 +92,10 @@ public class Reassembler extends AbstractReassembler {
         for (int j = 0; j < 2; j++) {
             char[] fragment = fragments[j];
             char[] base = fragments[(j + 1) % 2];
-            int longest = Math.min(base.length, fragment.length);
-            for (int i = 0; i < longest; i++) {
-                char[] arr1 = Arrays.copyOfRange(fragment, fragment.length - i - 1, fragment.length);
+            int shortest = Math.min(base.length, fragment.length);
+            for (int i = 0; i < shortest; i++) {
+                char[] arr1 = Arrays.copyOfRange(fragment, fragment.length - i - 1,
+                        fragment.length);
                 char[] arr2 = Arrays.copyOfRange(base, 0, i + 1);
                 if (Arrays.equals(arr1, arr2) && arr1.length != fragment.length) {
                     overlaps[j] = i + 1;
@@ -107,56 +114,60 @@ public class Reassembler extends AbstractReassembler {
      * @return
      */
     private String setReassembled() {
-        /* Sort fragments to add largest first */
-        fragments.sort(Comparator.comparingInt(a -> -a.length));
 
         char[] base = fragments.get(0);
         fragments.remove(0);
-        int potentialSubstrings = 0;
 
-        /* Loop while until potentialSubstrings == remaining fragments */
-        while (potentialSubstrings != fragments.size()) {
+        int loopLength = fragments.size();
+        for (int j = 0; j != loopLength; j++) {
             int bestOverlap = 0;
             int bestOverlapFragmentIndex = 0;
-            String bestOverlapDirection = "left";
+            boolean outerOverlap = false;
+            boolean rightOverlap = false;
 
             for (int i = 0; i < fragments.size(); i++) {
-                char[] test = fragments.get(i);
 
+                char[] test = fragments.get(i);
+                int newBestOverlap;
                 if (bestOverlap > test.length) {
                     break;
                 }
 
-                int overlap = getOverlaps(test, base);
-                int newBestOverlap = Math.abs(overlap);
+                if (new String(base).contains(new String(test))){
+                    newBestOverlap = test.length;
+                    if (newBestOverlap > bestOverlap) {
+                        outerOverlap = false;
+                    }
+                } else {
+                    newBestOverlap = getOverlaps(test, base);
+                    if (Math.abs(newBestOverlap) > bestOverlap) {
+                        outerOverlap = true;
 
-                if (newBestOverlap > bestOverlap && overlap > 0) {
-                    bestOverlapDirection = "right";
+                        if (newBestOverlap > 0) {
+                            rightOverlap = true;
+                        }
+                    }
                 }
 
-                if (newBestOverlap > bestOverlap) {
+                if (Math.abs(newBestOverlap) > bestOverlap) {
                     bestOverlapFragmentIndex = i;
-                    bestOverlap = newBestOverlap;
+                    bestOverlap = Math.abs(newBestOverlap);
                 }
-
 
             }
 
             if (bestOverlap > 0) {
                 char[] toAdd = fragments.get(bestOverlapFragmentIndex);
-                if (bestOverlapDirection.equals("right")) {
-                    base = concat(base, Arrays.copyOfRange(toAdd, bestOverlap, toAdd.length));
-                } else {
-                    base = concat(toAdd, Arrays.copyOfRange(base, bestOverlap, base.length));
+                if (outerOverlap){
+                    if (rightOverlap) {
+                        base = concat(base, Arrays.copyOfRange(toAdd, bestOverlap, toAdd.length));
+                    } else{
+                        base = concat(toAdd, Arrays.copyOfRange(base, bestOverlap, base.length));
+                    }
                 }
                 fragments.remove(bestOverlapFragmentIndex);
-            } else {
-                /*Fragment has no outer overlap so mark as potential substring of larger fragment */
-                potentialSubstrings++;
             }
         }
-
         return new String(base);
-
     }
 }

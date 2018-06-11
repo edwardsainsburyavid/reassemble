@@ -10,13 +10,30 @@ public class ReassemblerTest {
     @Test
     public void getReassembled() {
 
-
         String result = new Reassembler("Hello w;world.").getReassembled();
         String expectedResult = "Hello world.";
         assertEquals("Simple test", expectedResult, result);
 
         result = new Reassembler(" world.;Hello ").getReassembled();
         assertEquals("Backwards simple test", expectedResult, result);
+
+        result = new Reassembler("Hello ;lo w; world.").getReassembled();
+        assertEquals("Three overlap test", expectedResult, result);
+
+        result = new Reassembler("Hello ;ello; world.").getReassembled();
+        assertEquals("Ignores element with no outer overlap", expectedResult, result);
+
+        result = new Reassembler("Haha;Haha").getReassembled();
+        expectedResult = "Haha";
+        assertEquals("Completely overlapping element", expectedResult, result);
+
+        result = new Reassembler("Hello el;ello").getReassembled();
+        expectedResult = "Hello el";
+        assertEquals("Merges optimal overlap", expectedResult, result);
+
+        result = new Reassembler("Haha;haha").getReassembled();
+        expectedResult = "Hahaha";
+        assertEquals("Checks case sensitively", expectedResult, result);
 
         result = new Reassembler("").getReassembled();
         expectedResult = "";
