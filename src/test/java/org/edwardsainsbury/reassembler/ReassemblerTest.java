@@ -1,6 +1,5 @@
 package org.edwardsainsbury.reassembler;
 
-import org.edwardsainsbury.Reassembler.Reassembler;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -21,7 +20,13 @@ public class ReassemblerTest {
         assertEquals("Three overlap test", expectedResult, result);
 
         result = new Reassembler("Hello ;ello; world.").getReassembled();
-        assertEquals("Ignores element with no outer overlap", expectedResult, result);
+        assertEquals("Ignores element with no overlaps", expectedResult, result);
+
+        result = new Reassembler("Hello;ell").getReassembled();
+        assertEquals("Merges inner overlaps", "Hello", result);
+
+        result = new Reassembler("ell;Hello").getReassembled();
+        assertEquals("Merges inner overlaps test bigger than base", "Hello", result);
 
         result = new Reassembler("Haha;Haha").getReassembled();
         expectedResult = "Haha";
@@ -45,6 +50,9 @@ public class ReassemblerTest {
 
         result = new Reassembler("Hello world.;").getReassembled();
         assertEquals("One fragment test inc semi colon", result, expectedResult);
+
+        result = new Reassembler("He;el;ll;ll;lo;o ; w;wo;or;rl;ld;d.").getReassembled();
+        assertEquals("Short fragments test", result, expectedResult);
 
         result = new Reassembler("O draconia;conian devil! Oh la;h lame sa;saint! ").getReassembled();
         expectedResult = "O draconian devil! Oh lame saint! ";
@@ -83,10 +91,16 @@ public class ReassemblerTest {
         String result = reassembler.getReassembled();
         String expectedResult = "Hello w";
         assertEquals("Simple test", expectedResult, result);
+
         reassembler.addFragment("world.");
         result = reassembler.getReassembled();
         expectedResult = "Hello world.";
-        assertEquals("Simple test", expectedResult, result);
+        assertEquals("Simple addition test", expectedResult, result);
+
+        reassembler.addFragment("xyz");
+        result = reassembler.getReassembled();
+        expectedResult = "Hello world.";
+        assertEquals("Simple addition test", expectedResult, result);
     }
 
     @Test
@@ -95,10 +109,26 @@ public class ReassemblerTest {
         Reassembler reassembler = new Reassembler("Hello w;ello wqwor;world.");
         String result = reassembler.getReassembled();
         String expectedResult = "Hello wqworld.";
-        assertEquals("Simple test", expectedResult, result);
+        assertEquals("Set up correct", expectedResult, result);
+
         reassembler.removeFragment("ello wqwor");
         result = reassembler.getReassembled();
         expectedResult = "Hello world.";
-        assertEquals("Simple test", expectedResult, result);
+        assertEquals("Simple removal test", expectedResult, result);
+
+        reassembler.removeFragment("world.");
+        result = reassembler.getReassembled();
+        expectedResult = "Hello w";
+        assertEquals("Remove from result", expectedResult, result);
+
+        reassembler.removeFragment("ello wqwor");
+        result = reassembler.getReassembled();
+        expectedResult = "Hello w";
+        assertEquals("Remove non existant element", expectedResult, result);
+
+        reassembler.removeFragment("Hello w");
+        result = reassembler.getReassembled();
+        expectedResult = "";
+        assertEquals("Remove last element", expectedResult, result);
     }
 }

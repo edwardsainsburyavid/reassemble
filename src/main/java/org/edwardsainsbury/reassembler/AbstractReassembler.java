@@ -1,4 +1,4 @@
-package org.edwardsainsbury.Reassembler;
+package org.edwardsainsbury.reassembler;
 
 public abstract class AbstractReassembler {
 

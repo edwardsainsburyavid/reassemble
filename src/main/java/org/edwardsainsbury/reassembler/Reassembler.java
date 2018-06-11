@@ -1,4 +1,4 @@
-package org.edwardsainsbury.Reassembler;
+package org.edwardsainsbury.reassembler;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -32,11 +32,10 @@ public class Reassembler extends AbstractReassembler {
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Error: Please provide path to file");
         } catch (FileNotFoundException e) {
-            System.out.println("Error: File not found.");
+            System.out.println("Error: File not found");
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -53,11 +52,22 @@ public class Reassembler extends AbstractReassembler {
         return result;
     }
 
+    /**
+     * getReassembled:
+     * Gettter for reassembled read-only property.
+     * @return reassembled - String created from sentence fragments
+     */
     @Override
     public String getReassembled() {
         return reassembled;
     }
 
+    /**
+     * addFragment:
+     * Method to add a fragment that may have initially been missed causing invalid output.
+     *
+     * @param fragment - String to add to internal list of strings.
+     */
     @Override
     public void addFragment(String fragment) {
 
@@ -66,6 +76,11 @@ public class Reassembler extends AbstractReassembler {
         System.out.println(reassembled);
     }
 
+    /**
+     * removeFragment:
+     * Method to remove an erroneous fragment that could be causing incorrect output
+     * @param fragment - String fragment to remove from internal list of strings.
+     */
     @Override
     public void removeFragment(String fragment) {
         char[] toRemove = fragment.toCharArray();
@@ -84,10 +99,88 @@ public class Reassembler extends AbstractReassembler {
             fragments.remove(fragmentIndex);
         }
 
-        reassembled = setReassembled();
+        if (fragments.size() > 0) {
+            reassembled = setReassembled();
+        } else {
+            reassembled = "";
+        }
+
         System.out.println(reassembled);
     }
 
+    /**
+     * setReassembled:
+     * Iteratively combines sentence fragments into one main base string by checking for commonality.
+     *
+     * @return Returns a fully recombined string.
+     */
+    private String setReassembled() {
+        ArrayList<char[]> fragmentsCopy = new ArrayList<>(fragments);
+
+        char[] base = fragmentsCopy.get(0);
+        fragmentsCopy.remove(0);
+
+        for (int j = 0; j < fragments.size(); j++) {
+            int bestOverlap = 0;
+            int bestOverlapFragmentIndex = 0;
+            boolean outerOverlap = false;
+            boolean rightOverlap = false;
+
+            for (int i = 0; i < fragmentsCopy.size(); i++) {
+
+                char[] test = fragmentsCopy.get(i);
+                int overlap;
+
+                if (bestOverlap > test.length) {
+                    break;
+                }
+                char[] comapisonTest = test;
+                char[] comparisonBase = base;
+
+                if (test.length > base.length) {
+                    comapisonTest = base;
+                    comparisonBase = test;
+                }
+
+                if (new String(comparisonBase).contains(new String(comapisonTest))) {
+                    overlap = test.length;
+                    if (overlap > bestOverlap) {
+                        outerOverlap = false;
+                    }
+                    base = comparisonBase;
+
+                } else {
+                    overlap = getOverlaps(test, base);
+                    if (Math.abs(overlap) > bestOverlap) {
+                        outerOverlap = true;
+
+                        if (overlap > 0) {
+                            rightOverlap = true;
+                        }
+                    }
+                }
+
+                if (Math.abs(overlap) > bestOverlap) {
+                    bestOverlapFragmentIndex = i;
+                    bestOverlap = Math.abs(overlap);
+                }
+
+            }
+
+            if (bestOverlap > 0) {
+                char[] toAdd = fragmentsCopy.get(bestOverlapFragmentIndex);
+                if (outerOverlap){
+                    if (rightOverlap) {
+                        base = concat(base, Arrays.copyOfRange(toAdd, bestOverlap, toAdd.length));
+                    } else{
+                        base = concat(toAdd, Arrays.copyOfRange(base, bestOverlap, base.length));
+                    }
+                }
+                fragmentsCopy.remove(bestOverlapFragmentIndex);
+            }
+        }
+        return new String(base);
+    }
 
     /**
      * getOverlaps:
@@ -122,70 +215,5 @@ public class Reassembler extends AbstractReassembler {
         }
 
         return overlaps[1];
-    }
-
-    /**
-     * setReassembled:
-     * Iteratively combines sentance fragments into one main base string by checking for commonality.
-     * @return Returns a fully recombined string.
-     */
-    private String setReassembled() {
-        ArrayList<char[]> fragmentsCopy = new ArrayList<>();
-
-        fragmentsCopy.addAll(fragments);
-
-        char[] base = fragmentsCopy.get(0);
-        fragmentsCopy.remove(0);
-
-        for (int j = 0; j < fragments.size(); j++) {
-            int bestOverlap = 0;
-            int bestOverlapFragmentIndex = 0;
-            boolean outerOverlap = false;
-            boolean rightOverlap = false;
-
-            for (int i = 0; i < fragmentsCopy.size(); i++) {
-
-                char[] test = fragmentsCopy.get(i);
-                int newBestOverlap;
-                if (bestOverlap > test.length) {
-                    break;
-                }
-
-                if (new String(base).contains(new String(test))){
-                    newBestOverlap = test.length;
-                    if (newBestOverlap > bestOverlap) {
-                        outerOverlap = false;
-                    }
-                } else {
-                    newBestOverlap = getOverlaps(test, base);
-                    if (Math.abs(newBestOverlap) > bestOverlap) {
-                        outerOverlap = true;
-
-                        if (newBestOverlap > 0) {
-                            rightOverlap = true;
-                        }
-                    }
-                }
-
-                if (Math.abs(newBestOverlap) > bestOverlap) {
-                    bestOverlapFragmentIndex = i;
-                    bestOverlap = Math.abs(newBestOverlap);
-                }
-
-            }
-
-            if (bestOverlap > 0) {
-                char[] toAdd = fragmentsCopy.get(bestOverlapFragmentIndex);
-                if (outerOverlap){
-                    if (rightOverlap) {
-                        base = concat(base, Arrays.copyOfRange(toAdd, bestOverlap, toAdd.length));
-                    } else{
-                        base = concat(toAdd, Arrays.copyOfRange(base, bestOverlap, base.length));
-                    }
-                }
-                fragmentsCopy.remove(bestOverlapFragmentIndex);
-            }
-        }
-        return new String(base);
     }
 }

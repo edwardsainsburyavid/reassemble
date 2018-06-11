@@ -9,5 +9,5 @@ COPY tests.txt /usr/local/test/
 
 WORKDIR /usr/local/test/
 
-RUN mvn package
-CMD ["java", "-cp", "target/Reassembler-2.0.jar", "main", "tests.txt"]
+RUN mvn package -q
+CMD ["java", "-cp", "target/Reassembler-3.0.jar", "org.edwardsainsbury.reassembler.Reassembler", "tests.txt"]
