@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class Reassembler extends AbstractReassembler {
     private String reassembled;
@@ -46,7 +45,7 @@ public class Reassembler extends AbstractReassembler {
      *
      * @param first  - char[] Char array to be appended to
      * @param second - char[] Char array to append first array
-     * @return result - char[] Concatented result
+     * @return result - char[] Concatenated result
      */
     private static char[] concat(char[] first, char[] second) {
         char[] result = Arrays.copyOf(first, first.length + second.length);
@@ -61,6 +60,7 @@ public class Reassembler extends AbstractReassembler {
 
     @Override
     public void addFragment(String fragment) {
+
         fragments.add(fragment.toCharArray());
         reassembled = setReassembled();
         System.out.println(reassembled);
@@ -68,9 +68,22 @@ public class Reassembler extends AbstractReassembler {
 
     @Override
     public void removeFragment(String fragment) {
-        if (fragments.contains(fragment.toCharArray())){
-            fragments.remove(fragments.indexOf(fragment.toCharArray()));
+        char[] toRemove = fragment.toCharArray();
+        boolean foundFlag = false;
+        int fragmentIndex = 0;
+
+        for (int i = 0; i < fragments.size(); i++) {
+            if (Arrays.equals(fragments.get(i), toRemove)) {
+                foundFlag = true;
+                fragmentIndex = i;
+                break;
+            }
         }
+
+        if (foundFlag) {
+            fragments.remove(fragmentIndex);
+        }
+
         reassembled = setReassembled();
         System.out.println(reassembled);
     }
@@ -78,9 +91,10 @@ public class Reassembler extends AbstractReassembler {
 
     /**
      * getOverlaps:
-     * Method that finds left and right hand out overlaps between a base fragment and a test fragment. Inner overlaps.
-     * where the whole test fragment is a substring of the base fragment, are ignored. This limits interations to
-     * a maximum of (shortest length * 2)
+     * Method that finds left and right hand overlaps between a base fragment and a test fragment.
+     * For speed strings are only considered to overlap if the test string does not exist completely
+     * within the base string. This give a maximum time complexity of (shortest_length * 2).
+     * If the strings overlap on the left side of the base string, the overlap is returned negated.
      *
      * @param testFragment - char[] to compare either side of base char[]
      * @param baseFragment - char[] to be used as a base for comparison
@@ -111,23 +125,28 @@ public class Reassembler extends AbstractReassembler {
     }
 
     /**
-     * @return
+     * setReassembled:
+     * Iteratively combines sentance fragments into one main base string by checking for commonality.
+     * @return Returns a fully recombined string.
      */
     private String setReassembled() {
+        ArrayList<char[]> fragmentsCopy = new ArrayList<>();
 
-        char[] base = fragments.get(0);
-        fragments.remove(0);
+        fragmentsCopy.addAll(fragments);
 
-        int loopLength = fragments.size();
+        char[] base = fragmentsCopy.get(0);
+        fragmentsCopy.remove(0);
+
+        int loopLength = fragmentsCopy.size();
         for (int j = 0; j != loopLength; j++) {
             int bestOverlap = 0;
             int bestOverlapFragmentIndex = 0;
             boolean outerOverlap = false;
             boolean rightOverlap = false;
 
-            for (int i = 0; i < fragments.size(); i++) {
+            for (int i = 0; i < fragmentsCopy.size(); i++) {
 
-                char[] test = fragments.get(i);
+                char[] test = fragmentsCopy.get(i);
                 int newBestOverlap;
                 if (bestOverlap > test.length) {
                     break;
@@ -157,7 +176,7 @@ public class Reassembler extends AbstractReassembler {
             }
 
             if (bestOverlap > 0) {
-                char[] toAdd = fragments.get(bestOverlapFragmentIndex);
+                char[] toAdd = fragmentsCopy.get(bestOverlapFragmentIndex);
                 if (outerOverlap){
                     if (rightOverlap) {
                         base = concat(base, Arrays.copyOfRange(toAdd, bestOverlap, toAdd.length));
@@ -165,7 +184,7 @@ public class Reassembler extends AbstractReassembler {
                         base = concat(toAdd, Arrays.copyOfRange(base, bestOverlap, base.length));
                     }
                 }
-                fragments.remove(bestOverlapFragmentIndex);
+                fragmentsCopy.remove(bestOverlapFragmentIndex);
             }
         }
         return new String(base);

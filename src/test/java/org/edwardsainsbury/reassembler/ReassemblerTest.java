@@ -75,4 +75,30 @@ public class ReassemblerTest {
         String[] testsArgs = {"tests.txt"};
         Reassembler.main(testsArgs);
     }
+
+    @Test
+    public void addFragment() {
+
+        Reassembler reassembler = new Reassembler("Hello w;");
+        String result = reassembler.getReassembled();
+        String expectedResult = "Hello w";
+        assertEquals("Simple test", expectedResult, result);
+        reassembler.addFragment("world.");
+        result = reassembler.getReassembled();
+        expectedResult = "Hello world.";
+        assertEquals("Simple test", expectedResult, result);
+    }
+
+    @Test
+    public void removeFragment() {
+
+        Reassembler reassembler = new Reassembler("Hello w;ello wqwor;world.");
+        String result = reassembler.getReassembled();
+        String expectedResult = "Hello wqworld.";
+        assertEquals("Simple test", expectedResult, result);
+        reassembler.removeFragment("ello wqwor");
+        result = reassembler.getReassembled();
+        expectedResult = "Hello world.";
+        assertEquals("Simple test", expectedResult, result);
+    }
 }
