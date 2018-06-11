@@ -137,8 +137,7 @@ public class Reassembler extends AbstractReassembler {
         char[] base = fragmentsCopy.get(0);
         fragmentsCopy.remove(0);
 
-        int loopLength = fragmentsCopy.size();
-        for (int j = 0; j != loopLength; j++) {
+        for (int j = 0; j < fragments.size(); j++) {
             int bestOverlap = 0;
             int bestOverlapFragmentIndex = 0;
             boolean outerOverlap = false;
