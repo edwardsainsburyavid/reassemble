@@ -69,21 +69,6 @@ public class Reassembler extends AbstractReassembler {
     }
 
     /**
-     * concat:
-     * Utility method to concatenate a second array to the first
-     *
-     * @param first  - char[] Char array to be appended to
-     * @param second - char[] Char array to append first array
-     * @return result - char[] Concatenated result
-     */
-    private static char[] concat(char[] first, char[] second) {
-
-        char[] result = Arrays.copyOf(first, first.length + second.length);
-        System.arraycopy(second, 0, result, first.length, second.length);
-        return result;
-    }
-
-    /**
      * removeFragment:
      * Method to remove an erroneous fragment that could be causing incorrect output
      * @param fragment - String fragment to remove from internal list of strings.
@@ -233,5 +218,20 @@ public class Reassembler extends AbstractReassembler {
         }
 
         return overlaps[1];
+    }
+
+    /**
+     * concat:
+     * Utility method to concatenate a second array to the first
+     *
+     * @param first  - char[] Char array to be appended to
+     * @param second - char[] Char array to append first array
+     * @return result - char[] Concatenated result
+     */
+    private static char[] concat(char[] first, char[] second) {
+
+        char[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
     }
 }
