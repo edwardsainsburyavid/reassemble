@@ -7,16 +7,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Reassembler extends AbstractReassembler {
+
     private String reassembled;
     private ArrayList<char[]> fragments;
 
     public Reassembler(String inputString){
+
         String[] fragmentArray = inputString.split(";");
         ArrayList<char[]> fragments = new ArrayList<>();
 
         for (String fragment : fragmentArray){
             fragments.add(fragment.toCharArray());
         }
+
         this.fragments = fragments;
         this.reassembled = setReassembled();
     }
@@ -24,8 +27,11 @@ public class Reassembler extends AbstractReassembler {
     public static void main(String[] args) {
 
         try (BufferedReader in = new BufferedReader(new FileReader(args[0]))) {
+
             String fragmentProblem;
+
             while ((fragmentProblem = in.readLine()) != null) {
+
                 Reassembler reassembler = new Reassembler(fragmentProblem);
                 System.out.println(reassembler.getReassembled());
             }
@@ -36,20 +42,6 @@ public class Reassembler extends AbstractReassembler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * concat:
-     * Utility method to concatenate a second array to the first
-     *
-     * @param first  - char[] Char array to be appended to
-     * @param second - char[] Char array to append first array
-     * @return result - char[] Concatenated result
-     */
-    private static char[] concat(char[] first, char[] second) {
-        char[] result = Arrays.copyOf(first, first.length + second.length);
-        System.arraycopy(second, 0, result, first.length, second.length);
-        return result;
     }
 
     /**
@@ -77,12 +69,28 @@ public class Reassembler extends AbstractReassembler {
     }
 
     /**
+     * concat:
+     * Utility method to concatenate a second array to the first
+     *
+     * @param first  - char[] Char array to be appended to
+     * @param second - char[] Char array to append first array
+     * @return result - char[] Concatenated result
+     */
+    private static char[] concat(char[] first, char[] second) {
+
+        char[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
+    }
+
+    /**
      * removeFragment:
      * Method to remove an erroneous fragment that could be causing incorrect output
      * @param fragment - String fragment to remove from internal list of strings.
      */
     @Override
     public void removeFragment(String fragment) {
+
         char[] toRemove = fragment.toCharArray();
         boolean foundFlag = false;
         int fragmentIndex = 0;
@@ -111,16 +119,17 @@ public class Reassembler extends AbstractReassembler {
     /**
      * setReassembled:
      * Iteratively combines sentence fragments into one main base string by checking for commonality.
-     *
      * @return Returns a fully recombined string.
      */
     private String setReassembled() {
+
         ArrayList<char[]> fragmentsCopy = new ArrayList<>(fragments);
 
         char[] base = fragmentsCopy.get(0);
         fragmentsCopy.remove(0);
 
         for (int j = 0; j < fragments.size(); j++) {
+
             int bestOverlap = 0;
             int bestOverlapFragmentIndex = 0;
             boolean outerOverlap = false;
@@ -134,6 +143,7 @@ public class Reassembler extends AbstractReassembler {
                 if (bestOverlap > test.length) {
                     break;
                 }
+
                 char[] comapisonTest = test;
                 char[] comparisonBase = base;
 
@@ -144,6 +154,7 @@ public class Reassembler extends AbstractReassembler {
 
                 if (new String(comparisonBase).contains(new String(comapisonTest))) {
                     overlap = test.length;
+
                     if (overlap > bestOverlap) {
                         outerOverlap = false;
                     }
@@ -151,9 +162,9 @@ public class Reassembler extends AbstractReassembler {
 
                 } else {
                     overlap = getOverlaps(test, base);
+
                     if (Math.abs(overlap) > bestOverlap) {
                         outerOverlap = true;
-
                         if (overlap > 0) {
                             rightOverlap = true;
                         }
@@ -168,7 +179,9 @@ public class Reassembler extends AbstractReassembler {
             }
 
             if (bestOverlap > 0) {
+
                 char[] toAdd = fragmentsCopy.get(bestOverlapFragmentIndex);
+
                 if (outerOverlap){
                     if (rightOverlap) {
                         base = concat(base, Arrays.copyOfRange(toAdd, bestOverlap, toAdd.length));
@@ -194,16 +207,21 @@ public class Reassembler extends AbstractReassembler {
      * @return overlaps - int array containing the left and right hand overlaps
      */
     private int getOverlaps(char testFragment[], char baseFragment[]) {
+
         int[] overlaps = new int[2];
         char[][] fragments = {testFragment, baseFragment};
+
         for (int j = 0; j < 2; j++) {
+
             char[] fragment = fragments[j];
             char[] base = fragments[(j + 1) % 2];
             int shortest = Math.min(base.length, fragment.length);
+
             for (int i = 0; i < shortest; i++) {
-                char[] arr1 = Arrays.copyOfRange(fragment, fragment.length - i - 1,
-                        fragment.length);
+
+                char[] arr1 = Arrays.copyOfRange(fragment, fragment.length - i - 1, fragment.length);
                 char[] arr2 = Arrays.copyOfRange(base, 0, i + 1);
+
                 if (Arrays.equals(arr1, arr2) && arr1.length != fragment.length) {
                     overlaps[j] = i + 1;
                     break;
